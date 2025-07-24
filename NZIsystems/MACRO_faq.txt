@@ -1,0 +1,171 @@
+>>>> MACRO NOTES for DEV team:
+
+1. Should the First Run page really suggest the eastern_us_three_zones ?? due to run time on an ordinary computer. Perhaps give a few options depending on what kind of system a user is running on (e.g. HPC; ordinary laptop/desktop <=64 GB ram; souped-up laptop/desktop). And give some expected run times for each case depending on the computer type. Use case or system consistently... or explain case = system.
+2. Provide a "You should quit MACRO by doing XYZ if you see this happening on your system" note in the "Getting Started" and "Tutorials" pages.... or maybe add a troubleshooting page (see potential examples in MACRO.txt)
+3. Where is run log? Which should mirror (most) important outputs in terminal.
+4. Developing for Newbs - Training suggestions):
+	a. Stash in GH and Squash, Merge, or Rebase?  when developing from Fork AND
+	b. Briefly cover ".git\info\exclude" to keep user development environments clean wrt git
+5. Provide an example of every MacroEnergy command covered in documentation
+	a. julia --project=. -e  'using MacroEnergy; download_example(""multisector_three_zones_reduced"",""ExampleSystems"");'   ##Note the double quotes required to use this on Windows!!!!
+6. Wishlist - Asset Network Visualizations for each example system provided with the base code (perhaps an intern can do this?)
+	a. Code wish list: Make this option an auto MACRO export.
+
+
+----
+>>>> FAQ from June training with Zero Lab/HL
+	Q. If "time step * subperiods * hours per subperiod" do not equal "totalHoursModeled" in time_data.json (e.g. 8760/52 = 168.5)? 
+		A. HL: MACRO scales run to entry for "totalHoursModeled" even if maths don’t work
+	Q. For industry, track plants or techs within or ? 
+		A. HL: Depends on data and uniformity across plants. TBD for each instance.
+	Q. Which of these are in MACRO ‘liquid fuels’ commodity?
+		A. HL: See commodities.json for “acts like” and beccsliquidfuels.jl for asset structure within LiquidFuels
+
+
+----
+>>>> Set up operating environment (GUI)
+
+0. 	Install Gurobi (https://www.gurobi.com/)
+		a. Get Gurobi license
+		b. Install Gurobi license
+		c. Test Gurobi license
+1. 	Install Julia (and juliaup) from MS Store
+2. 	Install VS Code (https://code.visualstudio.com/)
+		a. Install Containers: https://code.visualstudio.com/docs/devcontainers/containers
+		b. Install Docker (in WSL): https://www.docker.com/get-started/ [localpatch cabbag$]
+3. 	ADD/FORK GH repository (using GH App) -- https://github.com/macroenergy/MacroEnergy.jl
+		DOCS: https://macroenergy.github.io/MacroEnergy.jl/dev/	
+		## Running from fork of MACRO main GH repository, which is public. Can sync changes committed by ZL Team, but don't have to 'contribute' if do not want to.
+		a. Stash & Squash, Merge, or Rebase?-- https://www.reddit.com/r/programming/comments/waczfj/squash_merge_or_rebase/
+4.	Set up Gurobi and VS Code futher
+		a. Create "gurobi.env" file in the base directory of the new repository
+			aa. Add line "Output Flag 0"
+			bb. Add line "LogToConsole 0"
+			cc. Save
+		b. Set up VS code setting in Files: exclude --> remove .git from list
+		c. Open, pin, and edit .git\info\exclude file to ignore files that the use plans to use for local development (will simplify newb interaction with git github)
+			aa. Add line "gurobi.env" and Save
+
+
+----
+>>>>Set up Julia project environemnt, Compile MACRO, quick test of Julia and Macro
+
+0. Open command prompt (do not need to be admin)
+1. Go to working directory of local GH repository directory
+>> cd "C:\Users\[user]\Documents\GitHub\MacroEnergy.jl"
+2. Set up a project environment -- the project environment is associated with a location/name! So whatever folder that you run this command from will be the same one you naivate to and run the command in #3
+>> julia --project -e "using Pkg; Pkg.instantiate(); Pkg.precompile();"
+##executes ( -e ) single julia expression in the current project directory ( --project )
+3. Quick test of MACRO setup from powershell
+>> julia --project=. -e  "using MacroEnergy; list_examples();"
+##(AI search on Google) " The \"=. -e\" format is a convenient way to execute short Julia code snippets from the command line without needing to save them in a file. The specific code to be executed is passed as a string to the -e flag"
+##(AI search on Google) " \"=.: This is the start of the string containing the Julia code to be executed. The \" is the string delimiter, and the = (and the optional ., if present) is part of the specific expression you're evaluating."
+##https://docs.julialang.org/en/v1/manual/command-line-interface/#:~:text=to%20this%20worker.-,Startup%20file,file%20if%20you%20use%20it.
+4. Test of MACRO from within Julia
+##enter the project environment -- THIS Opens Julia command line in the project environemnt "project"	
+>>	julia --project
+4.1 Load up the macro interface which was written in Julia (>>> = Julia prompt)
+>>>	using MacroEnergy;
+4.2 List all of the available example projects	
+>>> list_examples();
+4.3 (OPTIONAL) Download an example 
+>>>	download_example("one_zone_electricity_only","ExampleSystems");
+4.4 (OPTIONAL) Run MACRO
+>>>	include("ExampleSystems/one_zone_electricity_only/run_HiGHS.jl");
+4.5 exit julia after successful Open
+>>> exit(0)
+
+----
+>>>> Returning after a hiatus or a Git PUSH
+
+0. 	Open Powershell Terminal in VS Code
+1. 	Quick test of MACRO installation
+>> cd "C:\Users\[user]\Documents\GitHub\FORKS\MacroEnergy.jl"
+>> julia --project=. -e  "using MacroEnergy; list_examples();"
+##IF fail consider options 0.2a to 0.2c to troubleshoot problem
+2.a 	Recompile project environemnt to integrate changes included in latest PUSH Merge from Main MacroEnergy branch
+>>	julia --project -e "using Pkg; Pkg.instantiate(); Pkg.precompile();"
+	!SUCCESS! 
+	Precompiling project...
+	70 dependencies successfully precompiled in 75 seconds. 120 already precompiled.
+	1 dependency had output during precompilation:
+	┌ Gurobi
+	│  Set parameter Username
+	│  Set parameter LicenseID to value XXX
+	│  Academic license - for non-commercial use only - expires 20XX-XX-XX
+	└  
+	!SUCCESS!
+## note that Gurboi ouput does not highlight an issue, just that one has a valid license installed
+2.b 	Check Gurobi license and for license issues (optional)
+>> gurobi_cl --license
+	!SUCCESS!
+	Set parameter Username
+	Set parameter LicenseID to value XXXXXX
+	Set parameter LogFile to value "gurobi.log"
+	Using license file C:\Users\[user]\gurobi.lic
+	!SUCCESS!
+>> gurobi_cl c:\\gurobi1202\\win64\\examples\\data\\coins.lp
+	!SUCCESS!
+	[...]
+	Optimal solution found (tolerance 1.00e-04)
+	[...]
+	!SUCCESS!
+## To make Gurobi license output silent
+## https://support.gurobi.com/hc/en-us/articles/360044784552-How-do-I-suppress-all-console-output-from-Gurobi
+## create gurobi.env file in MACROENERGY.JL folder with OutputFlag 0 as one line
+2.c 	Update Julia
+>> juliaup update
+	!SUCCESS!
+	Checking for new Julia versions
+	Updating channel release
+	Installing Julia 1.11.6+0.x64.w64.mingw32
+	!SUCCESS!
+##end IF fail consider options 0.2a to 0.2c to troubleshoot problem
+2.d 	Quick re-Test MACRO installation 
+>> julia --project=. -e  "using MacroEnergy; list_examples();"
+	!SUCCESS!
+	[ Info:  ++ Loading pre-defined user commodities
+	Set parameter Username
+	Set parameter LicenseID to value XXX
+	Available examples:
+	 - electricity_three_zone
+	 - electricity_three_zone_multistage
+	 - multisector_three_zones
+	 - multisector_three_zones_CSV
+	 - multisector_three_zones_reduced
+	 - multisector_three_zones_reduced_CSV
+	 Download an example using `download_example("example name")`
+	!SUCCESS!
+>>>exit(0)
+
+----
+>>>> Benchmark MACRO
+
+1. Option A: Example System = "multisector_three_zones", "SolutionAlgorithm" = "Monolithic"
+## https://macroenergy.github.io/MacroEnergy.jl/dev/Getting%20Started/3_first_run/#Running-Macro
+## WARNING... running this case could take a long time!!
+	## 18 July 2025:
+	##	13th Gen Intel(R) Core(TM) i9-13900H  and  2.60 GHz with G4 GB RAM 
+	##	Run took 1 hour and 56 minutes on 
+>>julia --project=. ExampleSystems\multisector_us_three_zones\run.jl
+	!SUCCESS!
+	[...]
+	[ Info: Running case at C:\Users\[user]\Documents\GitHub\FORKS\MacroEnergy.jl\ExampleSystems\multisector_three_zones
+	[ Info: Loading system data
+	[ Info: *** Generating case ***
+	[ Info: *** Running simulation with monolithic solver ***
+	[ Info:  -- Model generation complete, it took 24.711999893188477 seconds
+	Barrier solved model in 51 iterations and 13.04 seconds (15.75 work units)
+	Optimal objective 5.03370684e+11
+	Solved in 1245620 iterations and 6989.40 seconds (10971.33 work units)
+	Optimal objective  5.030967895e+11
+	Warning: unscaled dual violation = 1.61918e-05 and residual = 1.61918e-05
+	[...]
+	[ Info: Writing results for period 1
+	[ Info: Writing capacity results to C:\Users\[user]\Documents\GitHub\FORKS\MacroEnergy.jl\ExampleSystems\multisector_three_zones\results_001\results\capacity.csv
+	 Info: Writing discounted costs to C:\Users\[user]\Documents\GitHub\FORKS\MacroEnergy.jl\ExampleSystems\multisector_three_zones\results_001\results\costs.csv
+	[ Info: Writing undiscounted costs to C:\Users\[user]\Documents\GitHub\FORKS\MacroEnergy.jl\ExampleSystems\emultisector_three_zones\results_001\results\undiscounted_costs.csv
+	[ Info: Writing flow results to C:\Users\[user]\Documents\GitHub\FORKS\MacroEnergy.jl\ExampleSystems\multisector_three_zones\results_001\results\flows.csv
+	!SUCCESS!
+
+----

@@ -1,0 +1,4 @@
+commodity,commodity_subtype,zone,resource_id,component_id,type,variable,value
+all,cost,all,all,all,Cost,DiscountedFixedCost,2.958375839233973e11
+all,cost,all,all,all,Cost,DiscountedVariableCost,2.072579794503175e11
+all,cost,all,all,all,Cost,DiscountedTotalCost,5.030955633737148e11
